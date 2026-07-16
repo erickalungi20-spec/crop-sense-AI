@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CropSense AI — Know your plot before you plant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="eyebrow">CropSense AI · Uganda</span>
+    <h1>Know your plot<br>before you plant.</h1>
+    <p class="subhead">Enter your district and land, and get a season forecast built from live weather, soil, and disease-risk data — the same engine that runs on our USSD line for feature phones.</p>
+  </header>
+
+  <main>
+    <div class="mode-switch" role="tablist">
+      <button class="mode-btn active" data-mode="advisory" role="tab" aria-selected="true">Yield forecast</button>
+      <button class="mode-btn" data-mode="rank" role="tab" aria-selected="false">What should I plant?</button>
+    </div>
+
+    <form id="advisory-form" class="panel form-panel" autocomplete="off">
+      <div class="field">
+        <label>Location</label>
+        <button type="button" class="gps-btn" id="gps-btn">📍 Use my current location</button>
+        <div id="gps-status" class="gps-status" hidden></div>
+        <div class="or-divider"><span>or enter manually</span></div>
+      </div>
+
+      <div class="field" id="district-block">
+        <label for="district">District</label>
+        <select id="district" name="district">
+          <option value="" disabled selected>Select your district</option>
+        </select>
+      </div>
+
+      <div class="field refine-field" id="county-block">
+        <label for="county">County <span class="optional">(optional — narrows accuracy)</span></label>
+        <input type="text" id="county" name="county" placeholder="e.g. Kashari">
+      </div>
+      <div class="field refine-field" id="subcounty-block">
+        <label for="subcounty">Subcounty <span class="optional">(optional)</span></label>
+        <input type="text" id="subcounty" name="subcounty" placeholder="e.g. Rubaya">
+      </div>
+      <div class="field refine-field" id="village-block">
+        <label for="village">Village <span class="optional">(optional — most precise)</span></label>
+        <input type="text" id="village" name="village" placeholder="e.g. Kanywambogo">
+      </div>
+
+      <div class="field" id="crop-field">
+        <label for="crop_key">Crop</label>
+        <select id="crop_key" name="crop_key" required>
+          <option value="" disabled selected>Select a crop</option>
+        </select>
+      </div>
+
+      <div class="field" id="area-field">
+        <label for="area_acres">Land size (acres)</label>
+        <input type="number" id="area_acres" name="area_acres" min="0.1" step="0.1" value="1" required>
+      </div>
+
+      <div class="field" id="purpose-field">
+        <label>Purpose</label>
+        <div class="pill-group" role="radiogroup">
+          <button type="button" class="pill active" data-value="food">Food</button>
+          <button type="button" class="pill" data-value="feed">Animal feed</button>
+          <button type="button" class="pill" data-value="both">Both</button>
+        </div>
+        <input type="hidden" id="purpose" name="purpose" value="food">
+      </div>
+
+      <div class="field" id="date-field">
+        <label for="planting_date">Planting date</label>
+        <div class="date-row">
+          <input type="date" id="planting_date" name="planting_date">
+          <label class="checkbox-row">
+            <input type="checkbox" id="planted-today" checked>
+            <span>Planted today</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field" id="sensor-field">
+        <label>Soil sensor reading <span class="optional">(optional — enter if you tested your soil yourself)</span></label>
+        <div class="sensor-grid">
+          <div>
+            <label class="sub-label" for="sensor_ph">pH</label>
+            <input type="number" id="sensor_ph" name="sensor_ph" min="3" max="10" step="0.1" placeholder="e.g. 6.4">
+          </div>
+          <div>
+            <label class="sub-label" for="sensor_moisture">Moisture %</label>
+            <input type="number" id="sensor_moisture" name="sensor_moisture" min="0" max="100" step="1" placeholder="e.g. 40">
+          </div>
+          <div>
+            <label class="sub-label" for="sensor_temperature">Soil temp °C</label>
+            <input type="number" id="sensor_temperature" name="sensor_temperature" min="-5" max="55" step="0.5" placeholder="e.g. 24">
+          </div>
+        </div>
+      </div>
+
+      <div class="field" id="phone-field">
+        <label for="phone">Phone number <span class="optional">(optional — links your ESP32 device instead, if you have one wired up)</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="+256 7XX XXX XXX">
+        <label class="checkbox-row" style="margin-top:8px;">
+          <input type="checkbox" id="subscribe-checkin">
+          <span>Get check-in status for this plot later (dial back in, or check here anytime — requires phone number above)</span>
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">Get advisory</button>
+    </form>
+
+    <section id="result" class="panel result-panel" hidden aria-live="polite"></section>
+    <section id="error" class="panel error-panel" hidden aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <p>Built for Ugandan smallholder farmers · Also reachable by USSD on feature phones</p>
+  </footer>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
